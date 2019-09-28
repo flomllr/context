@@ -20,7 +20,7 @@ const tryRunApplescript = async (script) => {
     }
 }
 
-exports.getCurrentProfile = async () => {
+const getCurrentProfile = async () => {
     const script = `
         tell application "System Events"
             set _P to a reference to (processes whose background only = false)
@@ -57,18 +57,19 @@ exports.getCurrentProfile = async () => {
 
     return profile;
 }
+exports.getCurrentProfile = getCurrentProfile;
 
 exports.openProfile = async (profile) => {
-    await openDesktop();
-    // for (const window of profile) {
-    //     // Skip this app and the terminal that runs it
-    //     if (window.name === "Electron" || window.name === "alacritty") {
-    //         continue;
-    //     }
+    const openWindows = await getCurrentProfile();
+    for (const window of openWindows) {
+        // Skip this app and the terminal that runs it
+        if (window.name === "Electron" || window.name === "alacritty") {
+            continue;
+        }
 
-    //     console.log("Closing window " + window.name)
-    //     await closeApp(window.name);
-    // }
+        console.log("Closing window " + window.name)
+        await closeApp(window.name);
+    }
 
     for (const window of profile) {
         // Skip this app and the terminal that runs it
@@ -137,7 +138,16 @@ const openSublimeFile = (path) => new Promise((resolve, reject) => {
 
 
 exports.switchProfile = async (profile) => {
-    await openDesktop();
+    const openWindows = await getCurrentProfile();
+    for (const window of openWindows) {
+        // Skip this app and the terminal that runs it
+        if (window.name === "Electron" || window.name === "alacritty") {
+            continue;
+        }
+
+        console.log("Closing window " + window.name)
+        await closeApp(window.name);
+    }
     switch(profile){
         case 'fun':
             // await closeApp('Sublime Text');
