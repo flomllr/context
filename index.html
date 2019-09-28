@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Electron Hello World!</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+  </head>
+  <body>
+      <div class="menuitems">
+      </div>
+      <script>
+        const { ipcRenderer } = require('electron');
+        const switchProfile = require('./handler.js').switchProfile;
+        const remote = require('electron').remote;
+
+        const container = document.querySelector('.menuitems');
+
+        ipcRenderer.on('item:add', (e, item) => {
+          console.log(e, item);
+          const menuitem = document.createElement('p');
+          const text = document.createTextNode(item);
+          menuitem.appendChild(text);
+          menuitem.addEventListener('click', (e) => {
+            console.log("Clicked", item);
+            switchProfile(item);
+            const window = remote.getCurrentWindow();
+            window.minimize();
+          });
+          container.appendChild(menuitem);
+        });
+
+        ipcRenderer.on('item:updateActive', (e, item) => {
+          const items = document.querySelectorAll('p');
+          items.forEach((e, index) => {
+            if(index === item){
+              e.classList.add('selected');
+            } else {
+              e.classList.remove('selected');
+            }
+          });
+        });
+
+        ipcRenderer.on('item:select', (e, item) => {
+          const items = document.querySelectorAll('p');
+          items[item].click();
+        });
+      </script>
+  </body>
+</html>

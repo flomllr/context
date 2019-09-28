@@ -1,0 +1,29 @@
+@font-face {
+    font-family: "Brown-Bold-Pro";
+    src: url("./lineto-brown-pro-regular.woff") format('woff');
+}
+
+* {
+    margin: 0 auto;
+}
+
+p {
+    padding: 17px 30px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid #252a2c;
+}
+
+body {
+    background-color: #252a2c;
+    color: #dcfd00;
+    font-family: 'Brown-Bold-Pro', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+p:hover, p.selected {
+    background-color: #dcfd00;
+    color:#252a2c;
+}

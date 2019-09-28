@@ -1,16 +1,50 @@
 {
-    "name": "logi-devmon-test",
-    "version": "1.0.0",
-    "devDependencies": {
-        "chai": "latest",
-        "mocha": "latest",
-        "ws": "latest"
+  "name": "contextmenu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "start": "npm install && electron ./app",
+    "pack": "build --dir",
+    "dist": "build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^6.0.10",
+    "run-applescript": "^3.2.0",
+    "ws": "^7.1.2"
+  },
+  "devDependencies": {
+    "electron-builder": "^21.2.0"
+  },
+  "build": {
+    "appId": "contextmenu",
+    "category": "productivity",
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     },
-    "scripts": {
-        "test": "mocha --check-leaks --recursive --reporter spec --timeout 60000"
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
     },
-    "dependencies": {
-        "applescript": "^1.0.0",
-        "run-applescript": "^3.2.0"
+    "win": {
+      "target": "squirrel",
+      "icon": "build/icon.ico"
     }
+  }
 }
