@@ -10,7 +10,7 @@ The following steps need to be taken to run this application:
 
 * Be on macOS.
 * Clone this repository.
-* Have node.js installed.
+* Have Node.js installed.
 
 ### How to run
 
