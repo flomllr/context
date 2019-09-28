@@ -4,9 +4,3 @@ tell application "System Events"
 	set _L to [_P's name, _W's size, _W's position]
 	_L
 end tell
-
-repeat with currentItem in _L
-	repeat with currentCurrent in currentItem
-		display dialog currentCurrent
-	end repeat
-end repeat
