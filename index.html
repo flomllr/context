@@ -8,12 +8,41 @@
   <body>
       <div class="menuitems">
       </div>
+      <div class="saveprofile"><p>Save current profile</p></div>
       <script>
         const { ipcRenderer } = require('electron');
-        const switchProfile = require('./handler.js').switchProfile;
+        const { switchProfile, getCurrentProfile } = require('./handler.js');
+
         const remote = require('electron').remote;
 
+        // Save additional profiles temporarily for now
+        const profiles = [];
+        
+        // Save reference to menuItems container
         const container = document.querySelector('.menuitems');
+
+        async function saveWindowsInProfiles() {
+          const config = await getCurrentProfile();
+          const title = 'New Profile ' + (profiles.length + 1);
+          const saveProfile = {
+            title,
+            config
+          }
+          profiles.push(saveProfile);
+
+          const menuitem = document.createElement('p');
+          const text = document.createTextNode(title);
+          menuitem.appendChild(text);
+          menuitem.addEventListener('click', () => console.log(config)); // TODO change
+          container.appendChild(menuitem);
+        }
+
+        const addButton = document.querySelector('.saveprofile');
+        addButton.addEventListener('click', async e => {
+          await saveWindowsInProfiles();
+          console.log('Profiles', profiles);
+        });
+
 
         ipcRenderer.on('item:add', (e, item) => {
           console.log(e, item);

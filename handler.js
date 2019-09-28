@@ -1,4 +1,5 @@
 const runApplescript = require('run-applescript');
+const applescript = require('applescript');
 const exec = require('child_process').exec;
 
 const leftHalf = [0, 840, 23, 1027];
@@ -8,6 +9,9 @@ const bottomLeft = [0, 840, 513, 1027]
 const topRight = [840, 1680, 23, 512]
 const bottomRight = [840, 1680, 513, 1027]
 
+// Profiles are stored temporarily in this array for now (until the app restarts)
+const profiles = [];
+
 const tryRunApplescript = async (script) => {
     try {
         await runApplescript(script);
@@ -16,15 +20,43 @@ const tryRunApplescript = async (script) => {
     }
 }
 
-const getOpenApps = async () =>
-    await tryRunApplescript(`
+exports.getCurrentProfile = async () => {
+    const script = `
         tell application "System Events"
-            set _P to a reference to (processes whose class of window 1 is window)
+            set _P to a reference to (processes whose background only = false)
             set _W to a reference to windows of _P
             set _L to [_P's name, _W's size, _W's position]
-            _L
+            return _L
         end tell
-    `);
+        `
+
+    // Current window configuration will be saved in profile
+    const profile = await (() => new Promise(resolve => {
+        const windows = []
+        applescript.execString(script, (err, rtn) => {
+            if (err) {
+                console.log("Error: ", err);
+            }
+            if (Array.isArray(rtn)) {
+                for (i in rtn[0]) {
+                    if (rtn[1][i].length == 0) {
+                        continue;
+                    }
+                    windows.push({
+                        name: rtn[0][i],
+                        width: rtn[1][i][0][0],
+                        height: rtn[1][i][0][1],
+                        xPos: rtn[2][i][0][0],
+                        yPos: rtn[2][i][0][1]
+                    })
+                }
+            resolve(windows);
+            }
+        });
+    }))();
+
+    return profile;
+}
 
 const openApp = async (app, xfrom, xto, yfrom, yto) => 
     await tryRunApplescript(`

@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "applescript": "^1.0.0",
     "electron": "^6.0.10",
     "run-applescript": "^3.2.0",
     "ws": "^7.1.2"
