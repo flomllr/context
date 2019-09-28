@@ -6,12 +6,13 @@
     <link rel="stylesheet" type="text/css" href="main.css">
   </head>
   <body>
-      <div class="menuitems">
+      <div class="menuitems"></div>
+      <div class="saveprofile">
+        <p>Save current profile</p>
       </div>
-      <div class="saveprofile"><p>Save current profile</p></div>
       <script>
         const { ipcRenderer } = require('electron');
-        const { switchProfile, getCurrentProfile } = require('./handler.js');
+        const { switchProfile, getCurrentProfile, openProfile } = require('./handler.js');
 
         const remote = require('electron').remote;
 
@@ -33,8 +34,15 @@
           const menuitem = document.createElement('p');
           const text = document.createTextNode(title);
           menuitem.appendChild(text);
-          menuitem.addEventListener('click', () => console.log(config)); // TODO change
+          menuitem.addEventListener('click', () => {
+            console.log(config);
+            openProfile(config);
+          });
           container.appendChild(menuitem);
+          
+          // update number of available menuitems in the backend
+          const numItems = document.querySelectorAll('p').length;
+          ipcRenderer.send('numItems', numItems);
         }
 
         const addButton = document.querySelector('.saveprofile');

@@ -23,7 +23,12 @@ body {
     font-size: 12px;
 }
 
-p:hover, p.selected {
+p:hover, p.selected, .saveprofile p.selected {
     background-color: #dcfd00;
     color:#252a2c;
+}
+
+.saveprofile p {
+    background-color: #32373a;
+    font-size: 9px;
 }

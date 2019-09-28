@@ -58,6 +58,27 @@ exports.getCurrentProfile = async () => {
     return profile;
 }
 
+exports.openProfile = async (profile) => {
+    // for (const window of profile) {
+    //     // Skip this app and the terminal that runs it
+    //     if (window.name === "Electron" || window.name === "alacritty") {
+    //         continue;
+    //     }
+
+    //     console.log("Closing window " + window.name)
+    //     await closeApp(window.name);
+    // }
+
+    for (const window of profile) {
+        // Skip this app and the terminal that runs it
+        if (window.name === "Electron" || window.name === "alacritty") {
+            continue;
+        }
+        console.log("Opening window " + window.name)
+        await openApp(window.name, window.xPos, window.width, window.yPos, window.height)
+    }
+}
+
 const openApp = async (app, xfrom, xto, yfrom, yto) => 
     await tryRunApplescript(`
         tell application "${app}" to activate

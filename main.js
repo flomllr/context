@@ -5,7 +5,7 @@ const ws = new Websocket(serverUrl);
 
 const electron = require('electron')
 // Module to control application life.
-const { app, globalShortcut } = electron
+const { app, globalShortcut, ipcMain } = electron
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
@@ -15,20 +15,24 @@ let mainWindow
 
 const menuItems = ['fun', 'coding'];
 let activeItem = 0;
+let numItems = menuItems.length + 1; // +1 for the add profiles button
 let theMainWindow;
+
 
 function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
 function up() {
-  activeItem = mod((activeItem + 1), menuItems.length);
+  console.log(numItems);
+  activeItem = mod((activeItem + 1), numItems);
   theMainWindow.webContents.send('item:updateActive', activeItem);
   console.log(activeItem);
 }
 
 function down() {
-  activeItem = mod((activeItem - 1), menuItems.length);
+  console.log(numItems);
+  activeItem = mod((activeItem - 1), numItems);
   theMainWindow.webContents.send('item:updateActive', activeItem);
   console.log(activeItem);
 }
@@ -40,7 +44,7 @@ function select() {
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 165, height: 300, frame: false, webPreferences: { nodeIntegration: true}})
+  mainWindow = new BrowserWindow({width: 200, height: 212, frame: false, webPreferences: { nodeIntegration: true}})
   theMainWindow = mainWindow;
 
   // and load the index.html of the app.
@@ -95,6 +99,17 @@ app.on('activate', function () {
   }
 })
 
+ipcMain.on('numItems', function (e, num) {
+  numItems = num;
+  const newHeight = num * 53;
+  const size = theMainWindow.getSize();
+  const height = size[1];
+  if(newHeight > height){
+    theMainWindow.setSize(size[0], newHeight);
+  }
+  console.log(num);
+});
+
 ws.on('open', () => {
     console.log('Connected to server');
 });
@@ -105,7 +120,7 @@ const bufferSize = 10;
 ws.on('message', async messageJson => {
     // Parse received message
     const message = JSON.parse(messageJson);
-    console.log(message);
+    //console.log(message);
     const { path, value } = message || {};
     switch (path) {
       case undefined:
