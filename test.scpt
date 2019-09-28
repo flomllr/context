@@ -4,3 +4,4 @@ tell application "System Events"
 	set _L to [_P's name, _W's size, _W's position]
 	_L
 end tell
+

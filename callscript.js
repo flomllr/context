@@ -1,5 +1,6 @@
 const Websocket = require('ws');
 const runApplescript = require('run-applescript');
+const applescript = require('applescript');
 
 
 const serverUrl = 'ws://localhost:9876';
@@ -14,6 +15,7 @@ const topLeft = [0, 840, 23, 512]
 const bottomLeft = [0, 840, 513, 1027]
 const topRight = [840, 1680, 23, 512]
 const bottomRight = [840, 1680, 513, 1027]
+profiles = []
 
 const tryRunApplescript = async (script) => {
     try {
@@ -23,29 +25,82 @@ const tryRunApplescript = async (script) => {
     }
 }
 
-const getOpenApps = async () =>
-    await tryRunApplescript(`
-        tell application "System Events"
-            set _P to a reference to (processes whose class of window 1 is window)
-            set _W to a reference to windows of _P
-            set _L to [_P's name, _W's size, _W's position]
-            _L
-        end tell
-    `);
+const saveCurrentProfileAs = async (profileName) => {
+    const script = `
+    tell application "System Events"
+        set _P to a reference to (processes whose background only = false)
+        set _W to a reference to windows of _P
+        set _L to [_P's name, _W's size, _W's position]
+        return _L
+    end tell
+`
+    const profile = await (() => new Promise(resolve => {
+        const windows = []
+        applescript.execString(script, (err, rtn) => {
+            if (err) {
+                // Something went wrong!
+            }
+            if (Array.isArray(rtn)) {
+                for (i in rtn[0]) {
+                    if (rtn[1][i].length == 0) {
+                        continue;
+                    }
+                    windows.push({
+                        name: rtn[0][i],
+                        width: rtn[1][i][0][0],
+                        height: rtn[1][i][0][1],
+                        xPos: rtn[2][i][0][0],
+                        yPos: rtn[2][i][0][1]
+                    })
+                }
+            resolve(windows);
+            }
+        });
+    }))();
 
-const openApp = async (app, xfrom, xto, yfrom, yto) => 
+    const saveProfile = {
+        title: profileName,
+        config: profile
+    }
+
+    profiles.push(saveProfile)
+}
+
+const openApp = async (app, xPos, width, yPos, height) => 
     await tryRunApplescript(`
         tell application "${app}" to activate
         tell application "System Events"
             set ssProcess to first process whose name is "${app}"
             tell ssProcess
                 tell first window
-                    set position to {${xfrom}, ${yfrom}}
-                    set size to {${xto - xfrom}, ${yto - yfrom}}
+                    set position to {${xPos}, ${yPos}}
+                    set size to {${width}, ${height}}
                 end tell
             end tell
         end tell
     `);
+
+const openProfile = async (profile) => {
+    let foundProfile = profiles.find(e => e.title === profile)
+    foundProfile = foundProfile.config
+    for (const window of foundProfile) {
+        if (window.name === "Electron" || window.name === "alacritty") {
+            continue;
+        }
+
+        console.log("Closing window " + window.name)
+        await closeApp(window.name);
+    }
+
+    for (const window of foundProfile) {
+        if (window.name === "Electron" || window.name === "alacritty") {
+            continue;
+        }
+
+        console.log("Opening window " + window.name)
+        await openApp(window.name, window.xPos, window.width, window.yPos, window.height)
+    }
+}
 
 const openSafari = async (page) => 
     await tryRunApplescript(`
@@ -72,6 +127,11 @@ const openSublimeFile = (path) => new Promise((resolve, reject) => {
         reject();
     }
 });
+
+(async () => {
+    await saveCurrentProfileAs("test")
+    await openProfile("test")
+})();
 
 
 const switchProfile = async (profile) => {
