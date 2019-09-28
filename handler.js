@@ -59,6 +59,7 @@ exports.getCurrentProfile = async () => {
 }
 
 exports.openProfile = async (profile) => {
+    await openDesktop();
     // for (const window of profile) {
     //     // Skip this app and the terminal that runs it
     //     if (window.name === "Electron" || window.name === "alacritty") {
@@ -78,6 +79,21 @@ exports.openProfile = async (profile) => {
         await openApp(window.name, window.xPos, window.width, window.yPos, window.height)
     }
 }
+
+const openDesktop = async () => 
+    await tryRunApplescript(`
+        tell application "System Events"
+        tell application "Mission Control" to launch
+        tell group 2 of group 1 of group 1 of process "Dock"
+            click (every button whose value of attribute "AXDescription" is "add desktop")
+            tell list 1
+                set countSpaces to count of buttons
+                delay 0.5
+                click button (countSpaces)
+            end tell
+        end tell
+        end tell
+`);
 
 const openApp = async (app, xfrom, xto, yfrom, yto) => 
     await tryRunApplescript(`
@@ -121,21 +137,22 @@ const openSublimeFile = (path) => new Promise((resolve, reject) => {
 
 
 exports.switchProfile = async (profile) => {
+    await openDesktop();
     switch(profile){
         case 'fun':
-            await closeApp('Sublime Text');
-            await closeApp('Spotify');
-            await closeApp('Terminal');
-            await closeApp('Safari');
+            // await closeApp('Sublime Text');
+            // await closeApp('Spotify');
+            // await closeApp('Terminal');
+            // await closeApp('Safari');
             await openSafari('https://www.reddit.com/r/ProgrammerHumor/');
             await openApp('Safari', ...leftHalf);
             await openApp('Spotify', ...rightHalf);
             break;
         case 'coding':
-            await closeApp('Spotify');
-            await closeApp('Safari');
-            await closeApp('Sublime Text');
-            await closeApp('Terminal');
+            // await closeApp('Spotify');
+            // await closeApp('Safari');
+            // await closeApp('Sublime Text');
+            // await closeApp('Terminal');
             await openSublimeFile('/User/flomllr/app.js');
             await openApp('Sublime Text', ...leftHalf);
             await openApp('Terminal', ...bottomRight);

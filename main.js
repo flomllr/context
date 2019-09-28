@@ -42,6 +42,12 @@ function select() {
   console.log('Selected', activeItem);
 }
 
+function showWindow() {
+  theMainWindow.setVisibleOnAllWorkspaces(true); // put the window on all screens
+  theMainWindow.restore();
+  //theMainWindow.focus();
+}
+
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 200, height: 212, frame: false, webPreferences: { nodeIntegration: true}})
@@ -140,7 +146,7 @@ ws.on('message', async messageJson => {
         const {cid1, cid2, cid3, cid4} = value;
         if(cid1 === 195 || cid2 === 195 || cid3 === 195 || cid4 === 195){
           if(theMainWindow.isMinimized()){
-            theMainWindow.restore();
+            showWindow();
           } else {
             select();
           }
