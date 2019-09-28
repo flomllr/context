@@ -13,7 +13,7 @@ const BrowserWindow = electron.BrowserWindow
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-const menuItems = ['fun', 'coding'];
+const menuItems = ['design', 'coding', 'university'];
 let activeItem = 0;
 let numItems = menuItems.length + 1; // +1 for the add profiles button
 let theMainWindow;
@@ -25,14 +25,16 @@ function mod(n, m) {
 
 function up() {
   console.log(numItems);
-  activeItem = mod((activeItem + 1), numItems);
+  theMainWindow.show();
+  activeItem = mod((activeItem - 1), numItems);
   theMainWindow.webContents.send('item:updateActive', activeItem);
   console.log(activeItem);
 }
 
 function down() {
   console.log(numItems);
-  activeItem = mod((activeItem - 1), numItems);
+  theMainWindow.show();
+  activeItem = mod((activeItem + 1), numItems);
   theMainWindow.webContents.send('item:updateActive', activeItem);
   console.log(activeItem);
 }

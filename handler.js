@@ -96,15 +96,15 @@ const openDesktop = async () =>
         end tell
 `);
 
-const openApp = async (app, xfrom, xto, yfrom, yto) => 
+const openApp = async (app, xPos, width, yPos, height) => 
     await tryRunApplescript(`
         tell application "${app}" to activate
         tell application "System Events"
             set ssProcess to first process whose name is "${app}"
             tell ssProcess
                 tell first window
-                    set position to {${xfrom}, ${yfrom}}
-                    set size to {${xto - xfrom}, ${yto - yfrom}}
+                    set position to {${xPos}, ${yPos}}
+                    set size to {${width}, ${height}}
                 end tell
             end tell
         end tell
@@ -124,6 +124,15 @@ const closeApp = async (app) =>
             quit
         end tell
     `);
+
+const openPages = async (doc) => {
+    await tryRunApplescript(`
+    tell application "Pages"
+        activate
+        open "${doc}"
+    end tell
+    `);
+}
 
 const openSublimeFile = (path) => new Promise((resolve, reject) => {
     try {
@@ -149,25 +158,28 @@ exports.switchProfile = async (profile) => {
         await closeApp(window.name);
     }
     switch(profile){
-        case 'fun':
-            // await closeApp('Sublime Text');
-            // await closeApp('Spotify');
-            // await closeApp('Terminal');
-            // await closeApp('Safari');
-            await openSafari('https://www.reddit.com/r/ProgrammerHumor/');
+        case 'university':
+            await closeApp('Pages');
+            await closeApp('Safari');
+            await openSafari('https://de.wikipedia.org/wiki/Wikipedia:Hauptseite');
             await openApp('Safari', ...leftHalf);
-            await openApp('Spotify', ...rightHalf);
+            await openPages('/Users/flomllr/deeplearning_report.pages');
+            await openApp('Pages', ...rightHalf);
             break;
         case 'coding':
-            // await closeApp('Spotify');
-            // await closeApp('Safari');
-            // await closeApp('Sublime Text');
-            // await closeApp('Terminal');
+            await closeApp('Safari');
+            await closeApp('Sublime Text');
+            await closeApp('Terminal');
             await openSublimeFile('/User/flomllr/app.js');
             await openApp('Sublime Text', ...leftHalf);
             await openApp('Terminal', ...bottomRight);
             await openSafari('https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript');
             await openApp('Safari', ...topRight)
+            break;
+        case 'design':
+            await openApp('Adobe Photoshop CC 2019', 0, 3360, 23, 1027);
+            break;
+        default:
             break;
     }
 }
