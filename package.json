@@ -8,5 +8,8 @@
     },
     "scripts": {
         "test": "mocha --check-leaks --recursive --reporter spec --timeout 60000"
+    },
+    "dependencies": {
+        "run-applescript": "^3.2.0"
     }
 }
