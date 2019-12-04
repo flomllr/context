@@ -10,11 +10,24 @@ const BrowserWindow = electron.BrowserWindow
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-const menuItems = ['design', 'coding', 'university'];
 let activeItem = 0;
-let numItems = menuItems.length + 1; // +1 for the add profiles button
 let theMainWindow;
 
+// Persistency
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+
+// Initialize database
+const adapter = new FileSync(`db.json`)
+const db = low(adapter)
+
+// Set defaults for database
+db.defaults({
+  profiles: []
+}).write()
+
+const menuItems = db.getState().profiles;
+let numItems = menuItems.length + 1; // +1 for the add profiles button
 
 function mod(n, m) {
   return ((n % m) + m) % m;
@@ -56,9 +69,9 @@ function createWindow () {
   mainWindow.loadURL(`file://${__dirname}/index.html`)
 
   mainWindow.webContents.on('did-finish-load', () => {    
-    menuItems.forEach(e => {
-      console.log("Sending item", e);
-      mainWindow.webContents.send('item:add', e);
+    menuItems.forEach(item => {
+      console.log("Sending item", item);
+      mainWindow.webContents.send('item:add', item);
     });
     mainWindow.webContents.send('item:updateActive', activeItem);
   })
@@ -116,6 +129,12 @@ ipcMain.on('numItems', function (e, num) {
   }
   console.log(num);
 });
+
+ipcMain.on('saveConfig', function (title, config) {
+  db.get('profiles')
+    .upsert({ title: title, config: config })
+    .write()
+})
 
 
 // In this file you can include the rest of your app's specific main process

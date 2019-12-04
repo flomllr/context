@@ -17,20 +17,6 @@
         const { switchProfile, getCurrentProfile, openProfile } 
         = require('./handler.js');
 
-        // Persistency
-        const low = require('lowdb')
-        const FileSync = require('lowdb/adapters/FileSync')
-
-        // Initialize database
-        const adapter = new FileSync('db.json')
-        const db = low(adapter)
-
-        // Set defaults for database
-        db.defaults({
-           profiles: [],
-           count: 0
-          }).write()
-
         const remote = require('electron').remote;
         
         // Save reference to menuItems container
@@ -38,13 +24,10 @@
 
         async function saveWindowsInProfiles(title) {
           const config = await getCurrentProfile();
-          const count = db.get('count').find().value()
-          if(!title) {
-            title = 'New Profile ' + (profiles.length + 1);
-          }
-          db.get('profiles')
-            .push({ title: title, config: config})
-            .write()
+
+          // TODO: Allow name to be set
+          const title = 'New Profile';
+          ipcRenderer.send('saveConfig', title, config)
 
           const menuitem = document.createElement('p');
           const text = document.createTextNode(title);
@@ -151,7 +134,7 @@
           menuitem.appendChild(text);
           menuitem.addEventListener('click', (e) => {
             console.log("Clicked", item);
-            switchProfile(item);
+            openProfile(item.config);
             const window = remote.getCurrentWindow();
             window.minimize();
           });

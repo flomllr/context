@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "profiles": [
     {
       "title": "asdf",
@@ -98,4 +99,7 @@
     }
   ],
   "count": 0
+=======
+  "profiles": []
+>>>>>>> 15edffc1c908fdda5d8bfa74b3c61c9e62d8cd06
 }
