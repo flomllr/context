@@ -12,24 +12,37 @@
       </div>
       <script>
         const { ipcRenderer } = require('electron');
-        const { switchProfile, getCurrentProfile, openProfile } = require('./handler.js');
+        const { switchProfile, getCurrentProfile, openProfile } 
+        = require('./handler.js');
+
+        // Persistency
+        const low = require('lowdb')
+        const FileSync = require('lowdb/adapter/FileSync')
+
+        // Initialize database
+        const adapter = new FileSync('db.json')
+        const db = low(adapter)
+
+        // Set defaults for database
+        db.defaults({
+           profiles: [],
+           count: 0
+          }).write()
 
         const remote = require('electron').remote;
-
-        // Save additional profiles temporarily for now
-        const profiles = [];
         
         // Save reference to menuItems container
         const container = document.querySelector('.menuitems');
 
         async function saveWindowsInProfiles() {
           const config = await getCurrentProfile();
+
+          // TODO: Allow name to be set
+          const count = db.get('count').find().value()
           const title = 'New Profile ' + (profiles.length + 1);
-          const saveProfile = {
-            title,
-            config
-          }
-          profiles.push(saveProfile);
+          db.get('profiles')
+            .push({ title: title, config: config})
+            .write()
 
           const menuitem = document.createElement('p');
           const text = document.createTextNode(title);

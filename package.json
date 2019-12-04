@@ -14,6 +14,7 @@
   "dependencies": {
     "applescript": "^1.0.0",
     "electron": "^6.0.10",
+    "lowdb": "^1.0.0",
     "run-applescript": "^3.2.0",
     "ws": "^7.1.2"
   },
