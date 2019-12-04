@@ -24,7 +24,8 @@
           const config = await getCurrentProfile();
 
           // TODO: Allow name to be set
-          const title = 'New Profile ';
+          const title = 'New Profile';
+          ipcRenderer.send('saveConfig', title, config)
 
           const menuitem = document.createElement('p');
           const text = document.createTextNode(title);
