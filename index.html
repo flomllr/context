@@ -10,6 +10,8 @@
       <div class="saveprofile">
         <p>Save current profile</p>
       </div>
+      <div class="setup"></div>
+      <div class="loading">Loading...</div>
       <script>
         const { ipcRenderer } = require('electron');
         const { switchProfile, getCurrentProfile, openProfile } 
@@ -17,7 +19,7 @@
 
         // Persistency
         const low = require('lowdb')
-        const FileSync = require('lowdb/adapter/FileSync')
+        const FileSync = require('lowdb/adapters/FileSync')
 
         // Initialize database
         const adapter = new FileSync('db.json')
@@ -34,12 +36,12 @@
         // Save reference to menuItems container
         const container = document.querySelector('.menuitems');
 
-        async function saveWindowsInProfiles() {
+        async function saveWindowsInProfiles(title) {
           const config = await getCurrentProfile();
-
-          // TODO: Allow name to be set
           const count = db.get('count').find().value()
-          const title = 'New Profile ' + (profiles.length + 1);
+          if(!title) {
+            title = 'New Profile ' + (profiles.length + 1);
+          }
           db.get('profiles')
             .push({ title: title, config: config})
             .write()
@@ -60,10 +62,85 @@
           ipcRenderer.send('numItems', numItems);
         }
 
+        function setSetupInnerHTML(html) {
+          const setup = document.querySelector('.setup');
+          setup.innerHTML = html;
+        }
+
+        function setSetupStep(step) {
+          switch(step) {
+            case 'saveOrOverwrite':
+              setSetupInnerHTML(`
+                <button id="saveAsNewProfile">Save as new profile</button>
+                <button id="overwriteExistingProfile">Overwrite existing profile</button>
+              `);
+              document
+                .getElementById('saveAsNewProfile')
+                .addEventListener('click', () => setSetupStep('setName'));
+              document
+                .getElementById('overwriteExistingProfile')
+                .addEventListener('click', () => setSetupStep('overwriteExisting'));
+              break;
+            case 'setName':
+              setSetupInnerHTML(`
+                <input id="profileName" type="text" placeholder="Name of the new profile" />
+                <button id="saveWithNewName">Save</button>
+              `);
+              document
+                .getElementById('saveWithNewName')
+                .addEventListener('click', async () => {
+                  const title = document.getElementById('profileName').value
+                  showLoading()
+                  try{
+                    await saveWindowsInProfiles(title);
+                  } catch(e) {
+                    console.log(e)
+                  }
+                  hideLoading();
+                  hideSetup();
+                });
+              break;
+            case 'overwriteExisting':
+              // TODO: get existing profiles and display them as option to overwrite
+              setSetupInnerHTML(`
+                <button id="overwriteProfile">Overwrite</button>
+              `);
+              document
+                .getElementById('overwriteProfile')
+                .addEventListener('click', hideSetup);
+              break;
+            case 'loading':
+              setSetupInnerHTML('<p>loading...</p>')
+          }
+        }
+
+        function showSetup() {
+          console.log("Showing setup")
+          const setupElement = document.querySelector('.setup');
+          setSetupStep('saveOrOverwrite')
+          setupElement.style.display = 'block';
+        }
+
+        function hideSetup() {
+          const setupElement = document.querySelector('.setup');
+          setupElement.style.display = 'none';
+        }
+
+        function hideLoading() {
+          const loading = document.querySelector('.loading')
+          loading.style.display = 'none';
+        }
+
+        function showLoading() {
+          const loading = document.querySelector('.loading')
+          loading.style.display = 'block';
+        }
+
         const addButton = document.querySelector('.saveprofile');
         addButton.addEventListener('click', async e => {
-          await saveWindowsInProfiles();
-          console.log('Profiles', profiles);
+          showSetup()
+          //await saveWindowsInProfiles();
+          //console.log('Profiles', profiles);
         });
 
 
