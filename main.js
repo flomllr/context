@@ -1,11 +1,8 @@
-const Websocket = require('ws');
-const serverUrl = 'ws://localhost:9876';
-const unitId = 3516711905; // Replace with your device's unitId
-const ws = new Websocket(serverUrl);
-
 const electron = require('electron')
+const electronLocalshortcut = require('electron-localshortcut');
 // Module to control application life.
 const { app, globalShortcut, ipcMain } = electron
+
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
@@ -66,12 +63,12 @@ function createWindow () {
     mainWindow.webContents.send('item:updateActive', activeItem);
   })
 
-  globalShortcut.register('CommandOrControl+Alt+Up', up);
-
-  globalShortcut.register('CommandOrControl+Alt+Down', down);
-
-  globalShortcut.register('CommandOrControl+Alt+Enter', select);
-
+  // Shortcuts
+  globalShortcut.register('CommandOrControl+Shift+Enter', () => theMainWindow.show());
+  electronLocalshortcut.register(mainWindow, 'Down', down);
+  electronLocalshortcut.register(mainWindow, 'Up', up);
+  electronLocalshortcut.register(mainWindow, 'Enter', select);
+  electronLocalshortcut.register(mainWindow, 'Esc', () => theMainWindow.hide());
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()
@@ -88,7 +85,9 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow()
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -117,48 +116,6 @@ ipcMain.on('numItems', function (e, num) {
   }
   console.log(num);
 });
-
-ws.on('open', () => {
-    console.log('Connected to server');
-});
-
-
-let rotationBuffer = 0;
-const bufferSize = 10;
-ws.on('message', async messageJson => {
-    // Parse received message
-    const message = JSON.parse(messageJson);
-    //console.log(message);
-    const { path, value } = message || {};
-    switch (path) {
-      case undefined:
-        return;
-      case 'thumbWheel':
-        const { rotation } = value;
-        rotationBuffer += rotation;
-        if(rotationBuffer > bufferSize){
-          rotationBuffer = 0;
-          up();
-        } else if(rotationBuffer < (-1*bufferSize)){
-          rotationBuffer = 0;
-          down();
-        }
-        break;
-      case 'divertedButtons':
-        const {cid1, cid2, cid3, cid4} = value;
-        if(cid1 === 195 || cid2 === 195 || cid3 === 195 || cid4 === 195){
-          if(theMainWindow.isMinimized()){
-            showWindow();
-          } else {
-            select();
-          }
-        }
-        break;
-      default:
-        break;
-    }
-});
-
 
 
 // In this file you can include the rest of your app's specific main process
