@@ -1,3 +1,44 @@
 {
-  "profiles": []
+  "profiles": [
+    {
+      "title": "New Profile",
+      "config": [
+        {
+          "height": 877,
+          "name": "Mail",
+          "width": 840,
+          "xPos": 0,
+          "yPos": 23
+        },
+        {
+          "height": 720,
+          "name": "Discord",
+          "width": 1048,
+          "xPos": 1440,
+          "yPos": 41
+        },
+        {
+          "height": 747,
+          "name": "Safari",
+          "width": 1048,
+          "xPos": 1440,
+          "yPos": 23
+        },
+        {
+          "height": 877,
+          "name": "Electron",
+          "width": 1440,
+          "xPos": 0,
+          "yPos": 23
+        },
+        {
+          "height": 212,
+          "name": "Electron",
+          "width": 200,
+          "xPos": 620,
+          "yPos": 344
+        }
+      ]
+    }
+  ]
 }

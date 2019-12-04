@@ -130,11 +130,27 @@ ipcMain.on('numItems', function (e, num) {
   console.log(num);
 });
 
-ipcMain.on('saveConfig', function (title, config) {
+ipcMain.on('saveConfig', function (e, title, config) {
+  console.log(title)
+  console.log(config)
   db.get('profiles')
-    .upsert({ title: title, config: config })
+    .upsert( { title, config } )
     .write()
 })
+
+db._.mixin({
+  upsert: function(collection, obj, key) {
+    key = key || 'id';
+    for (var i = 0; i < collection.length; i++) {
+      var el = collection[i];
+      if(el[key] === obj[key]){
+        collection[i] = obj;
+        return collection;
+      }
+    };
+    collection.push(obj);
+  }
+});
 
 
 // In this file you can include the rest of your app's specific main process
