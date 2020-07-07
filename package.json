@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "applescript": "^1.0.0",
-    "electron": "^6.0.10",
+    "electron": "^9.1.0",
     "lowdb": "^1.0.0",
     "electron-localshortcut": "^3.2.1",
     "run-applescript": "^3.2.0",
